@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck title</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-elevated: #12151c;
+    --fg: #f4f6fa;
+    --fg-muted: #9aa3b2;
+    --accent: #6ee7b7;
+    --accent-soft: rgba(110, 231, 183, 0.15);
+    --border: #262b36;
+    --font-heading: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-mono: Consolas, 'Courier New', monospace;
+  }
+
+  /* Swap the whole palette by setting data-theme on <body>. Add a new
+     theme by copying one of these blocks and changing only the values -
+     every rule below reads the variables, never a literal color. */
+  [data-theme="light"] {
+    --bg: #fbfbf9; --bg-elevated: #f1f1ed; --fg: #16181d; --fg-muted: #5b6270;
+    --accent: #2563eb; --accent-soft: rgba(37, 99, 235, 0.1); --border: #e2e2dd;
+  }
+  [data-theme="warm"] {
+    --bg: #1a120b; --bg-elevated: #241a10; --fg: #f8ede1; --fg-muted: #b89c84;
+    --accent: #f2994a; --accent-soft: rgba(242, 153, 74, 0.15); --border: #3a2a1a;
+  }
+  [data-theme="mono"] {
+    --bg: #0a0a0a; --bg-elevated: #161616; --fg: #e8e8e8; --fg-muted: #888888;
+    --accent: #e8e8e8; --accent-soft: rgba(232, 232, 232, 0.1); --border: #2a2a2a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body { font-family: var(--font-body); color: var(--fg); }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 7vh 9vw 10vh;
+    background: var(--bg); color: var(--fg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 0.8rem; font-weight: 600; color: var(--accent);
+    margin: 0 0 1rem;
+  }
+  .slide h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.18; margin: 0 0 1.3rem; max-width: 22ch;
+  }
+
+  ul.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.9rem; max-width: 60ch; }
+  ul.bullets li { font-size: 1.25rem; line-height: 1.5; padding-left: 1.6rem; position: relative; }
+  ul.bullets li::before {
+    content: ''; position: absolute; left: 0; top: 0.65em;
+    width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent);
+  }
+
+  /* Title slide: the deck's opener. Centered, no kicker needed. */
+  .slide--title { align-items: center; text-align: center; }
+  .slide--title h1 { font-size: clamp(2.6rem, 6.5vw, 4.4rem); max-width: 18ch; }
+  .slide--title .subtitle { color: var(--fg-muted); font-size: 1.3rem; margin-top: 0.6rem; }
+
+  /* Section divider: breaks a long deck into parts. Just a label. */
+  .slide--section { align-items: center; text-align: center; background: var(--bg-elevated); }
+  .slide--section .kicker { font-size: 1rem; }
+  .slide--section h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); max-width: 20ch; }
+
+  /* Comparison: 2-4 cards side by side, each with its own short list. */
+  .compare-grid { display: grid; gap: 1.2rem; margin-top: 0.6rem; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .compare-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.5rem; }
+  .compare-card h3 { margin: 0 0 0.8rem; font-size: 1.05rem; color: var(--accent); }
+  .compare-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.98rem; color: var(--fg-muted); }
+
+  /* Table: a real row/column comparison across 2+ dimensions. */
+  table.deck-table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; font-size: 1.02rem; }
+  table.deck-table th, table.deck-table td { text-align: left; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
+  table.deck-table th { color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.06em; }
+  table.deck-table td:first-child, table.deck-table th:first-child { padding-left: 0; }
+
+  /* Stat: one number the audience should remember. Use sparingly. */
+  .slide--stat { align-items: center; text-align: center; }
+  .stat-number { font-family: var(--font-heading); font-size: clamp(4rem, 13vw, 7.5rem); color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 1.25rem; color: var(--fg-muted); margin-top: 0.8rem; max-width: 36ch; }
+
+  /* Quote: a single short quote or pull-line, attributed. */
+  .slide--quote { align-items: center; text-align: center; }
+  .slide--quote blockquote { font-family: var(--font-heading); font-style: italic; font-size: clamp(1.6rem, 3.6vw, 2.3rem); line-height: 1.4; margin: 0; max-width: 30ch; }
+  .slide--quote cite { display: block; margin-top: 1.2rem; font-style: normal; color: var(--fg-muted); font-size: 1rem; }
+
+  .progress-track { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--border); z-index: 10; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s ease; }
+
+  .deck-footer {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted);
+  }
+  .nav-btn {
+    background: var(--bg-elevated); border: 1px solid var(--border); color: var(--fg);
+    width: 2.2rem; height: 2.2rem; border-radius: 50%; font-size: 1rem; cursor: pointer;
+  }
+  .nav-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    .slide { position: static; opacity: 1 !important; page-break-after: always; height: 100vh; }
+    .progress-track, .deck-footer { display: none; }
+  }
+</style>
+</head>
+<body data-theme="">
+
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <!-- SLIDE TYPE: title - the deck's opener. One per deck, always first. -->
+  <section class="slide slide--title">
+    <h1>Deck title goes here</h1>
+    <p class="subtitle">One-line subtitle or date</p>
+  </section>
+
+  <!-- SLIDE TYPE: bullets - the default content slide. Kicker + heading + up to ~6 short bullets. -->
+  <section class="slide">
+    <p class="kicker">Section label</p>
+    <h1>The claim this slide makes</h1>
+    <ul class="bullets">
+      <li>Supporting point one, one line</li>
+      <li>Supporting point two, one line</li>
+      <li>Supporting point three, one line</li>
+    </ul>
+  </section>
+
+  <!-- SLIDE TYPE: section - a divider between parts of a longer deck. -->
+  <section class="slide slide--section">
+    <p class="kicker">Part two</p>
+    <h1>Section heading</h1>
+  </section>
+
+  <!-- SLIDE TYPE: compare - 2-4 items, each with a short list of its own points. -->
+  <section class="slide">
+    <p class="kicker">Section label</p>
+    <h1>The comparison this slide makes</h1>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>Option A</h3>
+        <ul><li>Point about A</li><li>Point about A</li></ul>
+      </div>
+      <div class="compare-card">
+        <h3>Option B</h3>
+        <ul><li>Point about B</li><li>Point about B</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE TYPE: table - a real row/column comparison. -->
+  <section class="slide">
+    <p class="kicker">Section label</p>
+    <h1>The table this slide shows</h1>
+    <table class="deck-table">
+      <tr><th>Row</th><th>Dimension A</th><th>Dimension B</th></tr>
+      <tr><td>First</td><td>Value</td><td>Value</td></tr>
+      <tr><td>Second</td><td>Value</td><td>Value</td></tr>
+    </table>
+  </section>
+
+  <!-- SLIDE TYPE: stat - one number the audience should remember. -->
+  <section class="slide slide--stat">
+    <p class="kicker">Section label</p>
+    <div class="stat-number">42%</div>
+    <p class="stat-label">What the number means, in one short line</p>
+  </section>
+
+  <!-- SLIDE TYPE: quote - a single short quote or pull-line. -->
+  <section class="slide slide--quote">
+    <blockquote>"The quote or pull-line goes here."</blockquote>
+    <cite>Attribution</cite>
+  </section>
+
+  <footer class="deck-footer">
+    <button class="nav-btn" id="prev-btn" aria-label="Previous slide">&larr;</button>
+    <span id="page-counter"></span>
+    <button class="nav-btn" id="next-btn" aria-label="Next slide">&rarr;</button>
+  </footer>
+
+  <script>
+  (function () {
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var idx = 0;
+    var counter = document.getElementById('page-counter');
+    var fill = document.getElementById('progress-fill');
+
+    function render() {
+      for (var i = 0; i < total; i++) slides[i].classList.toggle('active', i === idx);
+      counter.textContent = (idx + 1) + ' / ' + total;
+      fill.style.width = ((idx + 1) / total * 100) + '%';
+    }
+    function go(delta) {
+      idx = Math.min(total - 1, Math.max(0, idx + delta));
+      render();
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+    document.getElementById('prev-btn').addEventListener('click', function () { go(-1); });
+    document.getElementById('next-btn').addEventListener('click', function () { go(1); });
+
+    var touchX = null;
+    document.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; });
+    document.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+      touchX = null;
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>

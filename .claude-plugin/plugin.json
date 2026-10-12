@@ -1,0 +1,10 @@
+{
+  "name": "html-slide-deck",
+  "version": "0.1.0",
+  "description": "Build a single, self-contained HTML slide deck - no build step, no npm, no dependencies - that opens directly in any browser and prints cleanly to PDF.",
+  "author": {
+    "name": "thisismairaj",
+    "url": "https://github.com/thisismairaj"
+  },
+  "license": "MIT"
+}

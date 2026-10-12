@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Six Claude Code mods, shipped today</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-elevated: #12151c;
+    --fg: #f4f6fa;
+    --fg-muted: #9aa3b2;
+    --accent: #6ee7b7;
+    --accent-soft: rgba(110, 231, 183, 0.15);
+    --border: #262b36;
+    --font-heading: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-mono: Consolas, 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body { font-family: var(--font-body); color: var(--fg); }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 7vh 9vw 10vh;
+    background: var(--bg); color: var(--fg);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  .kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 600; color: var(--accent); margin: 0 0 1rem; }
+  .slide h1 { font-family: var(--font-heading); font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.18; margin: 0 0 1.3rem; max-width: 22ch; }
+
+  ul.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.9rem; max-width: 60ch; }
+  ul.bullets li { font-size: 1.25rem; line-height: 1.5; padding-left: 1.6rem; position: relative; }
+  ul.bullets li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+
+  .slide--title { align-items: center; text-align: center; }
+  .slide--title h1 { font-size: clamp(2.6rem, 6.5vw, 4.4rem); max-width: 18ch; }
+  .slide--title .subtitle { color: var(--fg-muted); font-size: 1.3rem; margin-top: 0.6rem; }
+
+  .slide--section { align-items: center; text-align: center; background: var(--bg-elevated); }
+  .slide--section .kicker { font-size: 1rem; }
+  .slide--section h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); max-width: 20ch; }
+
+  .compare-grid { display: grid; gap: 1.2rem; margin-top: 0.6rem; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .compare-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.5rem; }
+  .compare-card h3 { margin: 0 0 0.8rem; font-size: 1.05rem; color: var(--accent); }
+  .compare-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.98rem; color: var(--fg-muted); }
+
+  table.deck-table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; font-size: 1.02rem; }
+  table.deck-table th, table.deck-table td { text-align: left; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
+  table.deck-table th { color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.06em; }
+  table.deck-table td:first-child, table.deck-table th:first-child { padding-left: 0; }
+
+  .slide--stat { align-items: center; text-align: center; }
+  .stat-number { font-family: var(--font-heading); font-size: clamp(4rem, 13vw, 7.5rem); color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 1.25rem; color: var(--fg-muted); margin-top: 0.8rem; max-width: 36ch; }
+
+  .slide--quote { align-items: center; text-align: center; }
+  .slide--quote blockquote { font-family: var(--font-heading); font-style: italic; font-size: clamp(1.6rem, 3.6vw, 2.3rem); line-height: 1.4; margin: 0; max-width: 30ch; }
+  .slide--quote cite { display: block; margin-top: 1.2rem; font-style: normal; color: var(--fg-muted); font-size: 1rem; }
+
+  .progress-track { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--border); z-index: 10; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s ease; }
+
+  .deck-footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted); }
+  .nav-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--fg); width: 2.2rem; height: 2.2rem; border-radius: 50%; font-size: 1rem; cursor: pointer; }
+  .nav-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    .slide { position: static; opacity: 1 !important; page-break-after: always; height: 100vh; }
+    .progress-track, .deck-footer { display: none; }
+  }
+</style>
+</head>
+<body data-theme="">
+
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <section class="slide slide--title">
+    <h1>Six Claude Code mods, shipped today</h1>
+    <p class="subtitle">A working-session recap</p>
+  </section>
+
+  <section class="slide slide--stat">
+    <p class="kicker">Today's output</p>
+    <div class="stat-number">6</div>
+    <p class="stat-label">Real, validated Claude Code plugins, each pushed to its own public repo</p>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">The lineup</p>
+    <h1>What each one actually does</h1>
+    <table class="deck-table">
+      <tr><th>Mod</th><th>What it does</th></tr>
+      <tr><td>token-weather</td><td>Context-window usage as a weather band</td></tr>
+      <tr><td>achievement-unlocked</td><td>Toasts real lifetime milestones</td></tr>
+      <tr><td>commit-haiku</td><td>AI haiku for every git commit</td></tr>
+      <tr><td>spinner-fortune</td><td>A programmer fortune in the spinner</td></tr>
+      <tr><td>commit-guard</td><td>Blocks a commit with a secret in the diff</td></tr>
+      <tr><td>test-pulse</td><td>Live test-health dashboard + push gate</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">Not just display</p>
+    <h1>Three of them are real gates</h1>
+    <ul class="bullets">
+      <li>commit-guard denies a commit outright if the diff looks like a secret</li>
+      <li>test-pulse refuses a push after a known test failure</li>
+      <li>Both fail open on their own bugs - never block you over a mod's own error</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">The complex one</p>
+    <h1>test-pulse uses five hooks working together</h1>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>The other five</h3>
+        <ul><li>One or two hooks each</li><li>A single concern</li></ul>
+      </div>
+      <div class="compare-card">
+        <h3>test-pulse</h3>
+        <ul><li>A custom slash command</li><li>A real docked Pane, not a toast</li><li>Persistent history + a push gate</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">Found along the way</p>
+    <h1>Two real bugs, caught before shipping</h1>
+    <ul class="bullets">
+      <li>Unicode sparkline glyphs don't rasterize via sharp-cli - fixed by drawing SVG rects instead</li>
+      <li>A plugin's state contract needs an inline object literal, not a type-alias reference</li>
+    </ul>
+  </section>
+
+  <footer class="deck-footer">
+    <button class="nav-btn" id="prev-btn" aria-label="Previous slide">&larr;</button>
+    <span id="page-counter"></span>
+    <button class="nav-btn" id="next-btn" aria-label="Next slide">&rarr;</button>
+  </footer>
+
+  <script>
+  (function () {
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var idx = 0;
+    var counter = document.getElementById('page-counter');
+    var fill = document.getElementById('progress-fill');
+
+    function render() {
+      for (var i = 0; i < total; i++) slides[i].classList.toggle('active', i === idx);
+      counter.textContent = (idx + 1) + ' / ' + total;
+      fill.style.width = ((idx + 1) / total * 100) + '%';
+    }
+    function go(delta) {
+      idx = Math.min(total - 1, Math.max(0, idx + delta));
+      render();
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+    document.getElementById('prev-btn').addEventListener('click', function () { go(-1); });
+    document.getElementById('next-btn').addEventListener('click', function () { go(1); });
+
+    var touchX = null;
+    document.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; });
+    document.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+      touchX = null;
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>

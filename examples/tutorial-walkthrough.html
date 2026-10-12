@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Claude Code dev-mods hot-reload</title>
+<style>
+  :root {
+    --bg: #0b0d12; --bg-elevated: #12151c; --fg: #f4f6fa; --fg-muted: #9aa3b2;
+    --accent: #6ee7b7; --accent-soft: rgba(110, 231, 183, 0.15); --border: #262b36;
+    --font-heading: Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-mono: Consolas, 'Courier New', monospace;
+  }
+  [data-theme="light"] {
+    --bg: #fbfbf9; --bg-elevated: #f1f1ed; --fg: #16181d; --fg-muted: #5b6270;
+    --accent: #2563eb; --accent-soft: rgba(37, 99, 235, 0.1); --border: #e2e2dd;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  body { font-family: var(--font-body); color: var(--fg); }
+
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 7vh 9vw 10vh; background: var(--bg); color: var(--fg); opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  .kicker { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.8rem; font-weight: 600; color: var(--accent); margin: 0 0 1rem; }
+  .slide h1 { font-family: var(--font-heading); font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.18; margin: 0 0 1.3rem; max-width: 22ch; }
+
+  ul.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.9rem; max-width: 60ch; }
+  ul.bullets li { font-size: 1.25rem; line-height: 1.5; padding-left: 1.6rem; position: relative; }
+  ul.bullets li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent); }
+  ul.bullets li code { font-family: var(--font-mono); background: var(--bg-elevated); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 1.05rem; }
+
+  .slide--title { align-items: center; text-align: center; }
+  .slide--title h1 { font-size: clamp(2.6rem, 6.5vw, 4.4rem); max-width: 18ch; }
+  .slide--title .subtitle { color: var(--fg-muted); font-size: 1.3rem; margin-top: 0.6rem; }
+
+  .slide--section { align-items: center; text-align: center; background: var(--bg-elevated); }
+  .slide--section .kicker { font-size: 1rem; }
+  .slide--section h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); max-width: 20ch; }
+
+  table.deck-table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; font-size: 1rem; }
+  table.deck-table th, table.deck-table td { text-align: left; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
+  table.deck-table th { color: var(--accent); font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.06em; }
+  table.deck-table td:first-child, table.deck-table th:first-child { padding-left: 0; }
+  table.deck-table code { font-family: var(--font-mono); font-size: 0.95rem; }
+
+  .progress-track { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--border); z-index: 10; }
+  .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.3s ease; }
+
+  .deck-footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 2rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted); }
+  .nav-btn { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--fg); width: 2.2rem; height: 2.2rem; border-radius: 50%; font-size: 1rem; cursor: pointer; }
+  .nav-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+  @media print {
+    html, body { overflow: visible; height: auto; }
+    .slide { position: static; opacity: 1 !important; page-break-after: always; height: 100vh; }
+    .progress-track, .deck-footer { display: none; }
+  }
+</style>
+</head>
+<body data-theme="light">
+
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <section class="slide slide--title">
+    <h1>How Claude Code dev-mods hot-reload</h1>
+    <p class="subtitle">A quick walkthrough</p>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">The basics</p>
+    <h1>A mod is three files</h1>
+    <ul class="bullets">
+      <li><code>.claude-plugin/plugin.json</code> - the manifest</li>
+      <li><code>hooks/hooks.json</code> - names the hooks module</li>
+      <li>The hooks module itself, exporting <code>register(on)</code></li>
+    </ul>
+  </section>
+
+  <section class="slide slide--section">
+    <p class="kicker">The actual trick</p>
+    <h1>Hot reload</h1>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">While developing</p>
+    <h1>Save the file, it reloads mid-session</h1>
+    <ul class="bullets">
+      <li>The engine watches the mod's folder the whole time you're building it</li>
+      <li>Saving reloads the hooks module in a fresh environment</li>
+      <li>No restart, no build step for a TypeScript/JSX module</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">Timing</p>
+    <h1>When it actually reloads</h1>
+    <table class="deck-table">
+      <tr><th>Save made during</th><th>Reloads</th></tr>
+      <tr><td>Claude's own turn (editing the mod)</td><td>When the turn ends, or sooner if a registered tool/command is about to run</td></tr>
+      <tr><td>Anywhere else</td><td>Once the folder's been quiet for a moment</td></tr>
+    </table>
+  </section>
+
+  <section class="slide">
+    <p class="kicker">Before it ships</p>
+    <h1>Validate, then share</h1>
+    <ul class="bullets">
+      <li><code>claude plugin validate .</code> checks the manifest and hooks the way the engine will</li>
+      <li>Sharing is one file away - a <code>marketplace.json</code> beside <code>plugin.json</code></li>
+      <li>Then: <code>/plugin install &lt;name&gt; --marketplace &lt;owner&gt;/&lt;repo&gt;</code></li>
+    </ul>
+  </section>
+
+  <footer class="deck-footer">
+    <button class="nav-btn" id="prev-btn" aria-label="Previous slide">&larr;</button>
+    <span id="page-counter"></span>
+    <button class="nav-btn" id="next-btn" aria-label="Next slide">&rarr;</button>
+  </footer>
+
+  <script>
+  (function () {
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var idx = 0;
+    var counter = document.getElementById('page-counter');
+    var fill = document.getElementById('progress-fill');
+    function render() {
+      for (var i = 0; i < total; i++) slides[i].classList.toggle('active', i === idx);
+      counter.textContent = (idx + 1) + ' / ' + total;
+      fill.style.width = ((idx + 1) / total * 100) + '%';
+    }
+    function go(delta) { idx = Math.min(total - 1, Math.max(0, idx + delta)); render(); }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') go(-1);
+    });
+    document.getElementById('prev-btn').addEventListener('click', function () { go(-1); });
+    document.getElementById('next-btn').addEventListener('click', function () { go(1); });
+    var touchX = null;
+    document.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; });
+    document.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+      touchX = null;
+    });
+    render();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<svg width="1200" height="628" viewBox="0 0 1200 628" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="628" fill="url(#bg)"/>
+
+  <text x="80" y="76" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="2" fill="#2ea043">OPEN SOURCE &#183; CLAUDE CODE SKILL</text>
+
+  <!-- mini slide mockup: the real product, scaled down, not a terminal -->
+  <rect x="300" y="100" width="600" height="300" rx="10" fill="#0b0d12" stroke="#262b36"/>
+  <rect x="300" y="100" width="600" height="3" fill="#262b36"/>
+  <rect x="300" y="100" width="330" height="3" fill="#6ee7b7"/>
+
+  <text x="332" y="146" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="1.5" fill="#6ee7b7">SECTION LABEL</text>
+  <text x="332" y="180" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#f4f6fa">The claim this slide makes</text>
+
+  <circle cx="338" cy="213" r="3" fill="#6ee7b7"/>
+  <text x="350" y="218" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#e3e7ee">Supporting point, one line</text>
+  <circle cx="338" cy="241" r="3" fill="#6ee7b7"/>
+  <text x="350" y="246" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#e3e7ee">Supporting point, one line</text>
+  <circle cx="338" cy="269" r="3" fill="#6ee7b7"/>
+  <text x="350" y="274" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#e3e7ee">Supporting point, one line</text>
+
+  <text x="330" y="380" font-family="Consolas, 'Courier New', monospace" font-size="14" fill="#6e7681">&#8592;</text>
+  <text x="600" y="380" font-family="Consolas, 'Courier New', monospace" font-size="13" fill="#6e7681" text-anchor="middle">3 / 6</text>
+  <text x="862" y="380" font-family="Consolas, 'Courier New', monospace" font-size="14" fill="#6e7681" text-anchor="end">&#8594;</text>
+
+  <text x="600" y="444" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="33" fill="#f0f6fc" text-anchor="middle">a slide deck that's just one file,</text>
+  <text x="600" y="482" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="33" fill="#f0f6fc" text-anchor="middle">no build step, no dependencies.</text>
+  <text x="600" y="514" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#6e7681" text-anchor="middle">seven slide types, four themes, zero install</text>
+
+  <g transform="translate(600,548)" stroke="#2ea043" stroke-width="2" fill="none" stroke-linejoin="round">
+    <path d="M-12 -14 L4 -14 L12 -6 L12 14 L-12 14 Z"/>
+    <path d="M4 -14 L4 -6 L12 -6"/>
+  </g>
+
+  <text x="600" y="588" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" font-weight="700" fill="#f0f6fc" text-anchor="middle">html-slide-deck</text>
+  <text x="600" y="610" font-family="Consolas, 'Courier New', monospace" font-size="13" fill="#6e7681" text-anchor="middle">github.com/thisismairaj/html-slide-deck</text>
+</svg>

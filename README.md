@@ -7,6 +7,14 @@
 
 ---
 
+## Why this matters
+
+**The deck you need right now is rarely one you'll pull from a template library.** It's a recap of findings from this session, a quick pitch, a walkthrough you want in front of someone in the next five minutes. Needing an account, a login, or an export pipeline before you can even start is friction that kills momentum on exactly the decks that matter most: the ones born out of a conversation that's still fresh.
+
+This skill skips all of that. One `.html` file, nothing to install, nothing to publish, open it in any browser you already have. The real work it does for you isn't CSS, it's deciding how much a slide can hold before it should split and when a table beats a bullet list, the part of deck-building that actually takes judgment.
+
+**One honest limit:** this isn't a PowerPoint or Google Slides replacement. If someone downstream needs to open your deck in Office and edit it themselves, hand them a different format, this one is built to be viewed and presented, not re-edited in another tool.
+
 ## What it does
 
 Ask for a slide deck, a presentation, or a "deck" from a document, a
